@@ -1,0 +1,67 @@
+---
+# tasks file for base_image
+- name: Ensure requirements in place
+  package:
+    name:
+      - guestfs-tools
+      - python3-libvirt
+    state: present
+  become: yes
+
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+  become: yes
+
+- name: Verify is file already exists
+  block:
+    - name: Compressed
+      stat:
+        path: "{{ base_dir }}/linux-{{ kernel_version }}.tar.gz"
+      register: tar_file
+    - name: Decompressed
+      stat:
+        path: "{{ base_dir }}/linux-{{ kernel_version }}"
+      register: kernel_folder
+
+- name: Compile kernel
+  block:
+    - name: Download kernel
+      get_url:
+        url: https://cdn.kernel.org/pub/linux/kernel/v{{ major_version }}.x/linux-{{ kernel_version }}.tar.gz
+        dest: "{{ base_dir }}/linux-{{ kernel_version }}.tar.gz"
+        checksum: "sha256: {{ kernel_checksum }}"
+      when: "(not tar_file.stat.exists) or
+             override_download | bool"
+
+    - name: Decompress the kernel
+      command: tar -zxvf linux-{{ kernel_version }}.tar.gz
+      args:
+        chdir: "{{ base_dir }}/"
+      when: "(not kernel_folder.stat.exists) or
+             override_folder | bool"
+
+    - name: copy kernel config file for make
+      copy:
+        content: "{{ lookup('template', 'config.j2') }}"
+        dest: "{{ base_dir }}/linux-{{ kernel_version }}/.config"
+      when: "(not kernel_folder.stat.exists) or
+             override_config | bool"
+
+    - name: Compile kernel
+      command: "{{ item }}"
+      with_items:
+      - make LLVM=1 -j{{ cpus }} olddefconfig 
+      - make LLVM=1 -j{{ cpus }} bzImage
+      - make LLVM=1 -j{{ cpus }} modules
+      args:
+        chdir: "{{ base_dir }}/linux-{{ kernel_version }}/"
+
+
+- name: Install kernel into VM
+  block:
+    - name: Dummy
+      command: whoami
+  when: "vm_name in existing_vms.list_vms"

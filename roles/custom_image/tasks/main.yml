@@ -1,0 +1,31 @@
+---
+# tasks file for base_image
+- name: Ensure requirements in place
+  package:
+    name:
+      - guestfs-tools
+      - python3-libvirt
+    state: present
+  become: yes
+
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+
+- name: Modify an existing libvirt machine
+  block:
+    - name: Clone the base vm
+      command: |
+        virt-clone --auto-clone \
+        --original {{ base_image }} \
+        --name {{ new_image }}
+
+    - name: Customize the new vm
+      command: |
+        virt-customize -d {{ new_image }}
+        --install {{ additional_packages }}
+
+  when: "base_image in existing_vms.list_vms and
+         new_image not in existing_vms.list_vms"

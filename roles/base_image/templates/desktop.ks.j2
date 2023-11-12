@@ -1,0 +1,56 @@
+graphical
+keyboard 'us'
+lang en_US.UTF-8
+network --onboot yes --bootproto dhcp --hostname={{ hostname }}
+rootpw dummyPa55w0rd # Actual password set (or unset) in %post below
+firewall --disabled
+authselect select sssd
+timezone --utc US/Eastern
+bootloader --location=mbr
+zerombr
+
+clearpart --all --drives=vda
+
+firstboot --disable
+
+autopart
+reboot
+
+repo --name=fedora --mirrorlist={{ main_repo_mirrorlist }}
+repo --name=updates --mirrorlist={{ main_updates_mirrorlist }}
+url --mirrorlist={{ main_url_mirrorlist }}
+
+%packages
+# Base
+@standard
+@firefox
+@multimedia
+@core
+@hardware-support
+@base-x
+@xfce-desktop-environment
+
+# Guest drivers
+xorg-x11-drv-qxl
+spice-vdagent
+spice-webdavd
+qemu-guest-agent
+
+# Programming
+vim
+tmux
+@C Development Tools and Libraries
+@Development Tools
+
+# Additional packages
+{{ additional_packages }}
+
+%end
+
+%post --erroronfail
+
+useradd -m -s /bin/bash -G wheel user
+passwd -d user
+passwd -d root
+
+%end

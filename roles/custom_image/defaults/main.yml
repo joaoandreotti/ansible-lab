@@ -1,0 +1,5 @@
+---
+# defaults file for base_image
+additional_packages: ""
+base_image: "random"
+new_image: "random"
