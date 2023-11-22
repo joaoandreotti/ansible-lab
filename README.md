@@ -13,6 +13,9 @@ Both [ImageFactory][6] and [Libosinfo][7](virt-install [options] --unattended) a
 
 Then, creating the derivative image was rather easy using [virt-clone][9] and [virt-customize][8] tool.
 
+## Example
+The base_image.yml and pentest_image.yml are just examples of how to use the previously mentioned roles.
+
 [1]: <https://www.redhat.com/sysadmin/build-VM-fast-ansible> "Build a lab in 36 seconds"
 [2]: <https://www.cyberciti.biz/faq/kvm-install-centos-redhat-using-kickstart-ks-cfg/> "Example article on kickstart"
 [3]: <https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/virtualization_deployment_and_administration_guide/sect-guest_virtual_machine_installation_overview-creating_guests_with_virt_install> "Red hat documentation on using unattended installs"
