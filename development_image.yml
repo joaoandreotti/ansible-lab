@@ -1,0 +1,17 @@
+- name: Create custom image from base
+  hosts: localhost
+  gather_facts: yes
+  become: yes
+  vars:
+    packages: |-
+    base: "f39-base"
+    new: "f39-development"
+
+  tasks:
+    - name: Custom image role
+      include_role:
+        name: custom_image
+      vars:
+        additional_packages: "{{ packages }}"
+        base_image: "{{ base }}"
+        new_image: "{{ new }}"

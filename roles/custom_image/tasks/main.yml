@@ -14,6 +14,11 @@
   register: existing_vms
   changed_when: no
 
+- name: Configure additional packages
+  command: |
+    echo -n "{{'--install ' + additional_packages if additional_packages != ''}}"
+  register: install_additional_packages
+
 - name: Modify an existing libvirt machine
   block:
     - name: Clone the base vm
@@ -25,7 +30,7 @@
     - name: Customize the new vm
       command: |
         virt-customize -d {{ new_image }}
-        --install {{ additional_packages }}
+        {{ install_additional_packages.stdout }}
 
   when: "base_image in existing_vms.list_vms and
          new_image not in existing_vms.list_vms"
