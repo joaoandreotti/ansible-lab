@@ -8,6 +8,7 @@
       - f39-personal
       - f39-pentest
       - f39-development
+      - f39-random
 
   tasks:
     - name: Update image role

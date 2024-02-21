@@ -15,8 +15,7 @@
   changed_when: no
 
 - name: Configure additional packages
-  command: |
-    echo -n "{{'--install ' + additional_packages if additional_packages != ''}}"
+  shell: echo -n "{{'--install ' + additional_packages if additional_packages != ''}}" | tr '\n' ','
   register: install_additional_packages
 
 - name: Modify an existing libvirt machine
@@ -29,7 +28,7 @@
 
     - name: Customize the new vm
       command: |
-        virt-customize -d {{ new_image }}
+        virt-customize -d {{ new_image }} --selinux-relabel
         {{ install_additional_packages.stdout }}
 
   when: "base_image in existing_vms.list_vms and

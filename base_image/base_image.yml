@@ -9,7 +9,7 @@
     updates_mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=updates-released-f{{ fedora_ver }}&arch=x86_64"
     url_mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=fedora-{{ fedora_ver }}&arch=x86_64"
     location: "https://download.fedoraproject.org/pub/fedora/linux/releases/{{ fedora_ver }}/Everything/x86_64/os/"
-    vm: "f{{ fedora_ver }}-base-test"
+    vm: "f{{ fedora_ver }}-base"
     vcpus: 4
     ram_mb: 4096
     disk_size_gb: 20

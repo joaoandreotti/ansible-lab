@@ -4,6 +4,7 @@
   become: yes
   vars:
     packages: |-
+      libreoffice
     base: "f39-base"
     new: "f39-personal"
 
