@@ -1,0 +1,21 @@
+- name: Clone the base vm
+  command: |
+    virt-clone --auto-clone \
+    --original {{ image.value.base }} \
+    --name {{ image.value.new }}
+
+- name: Configure additional packages
+  shell: echo -n "{{'--install ' + image.value.packages if image.value.packages != ''}}" | tr '\n' ','
+  register: install_additional_packages
+
+- name: Customize the new vm
+  command: |
+    virt-customize -d {{ image.value.new }} --selinux-relabel
+    {{ install_additional_packages.stdout }}
+  register: job
+  async: 1800
+  poll: 0
+
+- name: Job result
+  set_fact:
+    jobs: "{{ jobs + [job] }}"

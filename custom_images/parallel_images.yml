@@ -1,0 +1,25 @@
+- name: Create custom image from base
+  hosts: localhost
+  gather_facts: yes
+  become: yes
+  vars:
+    _images:
+      development:
+        packages: |-
+          vim
+          wget
+        base: "f39-base"
+        new: "f39-test-0"
+      pentest:
+        packages: |-
+          vim
+          wget
+        base: "f39-base"
+        new: "f39-test-1"
+
+  tasks:
+    - name: Custom image role
+      include_role:
+        name: custom_image
+      vars:
+        images: "{{ _images }}"

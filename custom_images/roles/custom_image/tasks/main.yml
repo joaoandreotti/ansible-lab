@@ -14,22 +14,25 @@
   register: existing_vms
   changed_when: no
 
-- name: Configure additional packages
-  shell: echo -n "{{'--install ' + additional_packages if additional_packages != ''}}" | tr '\n' ','
-  register: install_additional_packages
+- name: Create job list
+  set_fact:
+    jobs: []
 
-- name: Modify an existing libvirt machine
-  block:
-    - name: Clone the base vm
-      command: |
-        virt-clone --auto-clone \
-        --original {{ base_image }} \
-        --name {{ new_image }}
+- name: Create all images
+  include_tasks: 'roles/custom_image/tasks/customize_image.yml'
+  loop: "{{ images | dict2items }}"
+  loop_control:
+    loop_var: image
+  when: "image.value.base in existing_vms.list_vms and
+         image.value.new not in existing_vms.list_vms"
 
-    - name: Customize the new vm
-      command: |
-        virt-customize -d {{ new_image }} --selinux-relabel
-        {{ install_additional_packages.stdout }}
-
-  when: "base_image in existing_vms.list_vms and
-         new_image not in existing_vms.list_vms"
+- name: Wait for all images to be created
+  async_status:
+    jid: "{{ _job.ansible_job_id }}"
+  loop: "{{ jobs }}"
+  loop_control:
+    loop_var: "_job"
+  register: _job_results
+  until: _job_results.finished
+  retries: 1800
+  delay: 1

@@ -20,3 +20,15 @@
     --update
   when: "item in existing_vms.list_vms"
   loop: "{{ image_list }}"
+  register: _update_result
+  async: 1200
+  poll: 0
+
+- name: Wait for updates to complete
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: _jobs
+  until: _jobs.finished
+  retries: 1200
+  delay: 1
+  loop: "{{ _update_result.results }}"

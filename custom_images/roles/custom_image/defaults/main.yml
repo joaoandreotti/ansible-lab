@@ -1,6 +1,3 @@
 ---
 # defaults file for base_image
-install_additional_packages: ""
-additional_packages: ""
-base_image: "random"
-new_image: "random"
+images: ""
