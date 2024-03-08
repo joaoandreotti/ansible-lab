@@ -4,7 +4,7 @@
   package:
     name:
       - guestfs-tools
-      - python3-libvirt
+#- python3-libvirt
     state: present
   become: yes
 

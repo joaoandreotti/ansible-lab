@@ -20,6 +20,7 @@
         new: "f39-pentest"
       personal:
         packages: |-
+          libreoffice
         base: "f39-base"
         new: "f39-personal"
       random:

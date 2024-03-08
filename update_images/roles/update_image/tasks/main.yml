@@ -4,7 +4,6 @@
   package:
     name:
       - guestfs-tools
-      - python3-libvirt
     state: present
   become: yes
 
@@ -14,9 +13,17 @@
   register: existing_vms
   changed_when: no
 
+- name: Clone the base vm
+  command: |
+    virt-clone --auto-clone \
+    --original {{ item }} \
+    --name {{ item }}-update
+  when: "item in existing_vms.list_vms"
+  loop: "{{ image_list }}"
+
 - name: Update image
   command: |
-    virt-customize -d {{ item }} --selinux-relabel
+    virt-customize -d {{ item }}-update --selinux-relabel
     --update
   when: "item in existing_vms.list_vms"
   loop: "{{ image_list }}"
@@ -32,3 +39,22 @@
   retries: 1200
   delay: 1
   loop: "{{ _update_result.results }}"
+
+- pause:
+    prompt: "Does the updates succeded? (y/n)"
+    echo: yes
+  register: "update_succeded_result"
+
+- set_fact:
+    update_succeded: "{{ update_succeded_result.user_input }}"
+
+
+- name: Update failed, rollback
+  command: |
+    virsh undefine {{ item }}-update --remove-all-storage
+  when: update_succeded == "n"
+
+- name: Update succeded, merging images
+  include_tasks: 'roles/update_image/tasks/merge_image.yml'
+  loop: "{{ image_list }}"
+  when: update_succeded == "y"

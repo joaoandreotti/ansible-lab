@@ -1,0 +1,13 @@
+- name: Delete old image
+  command: |
+    virsh undefine {{ item }} --remove-all-storage
+
+- name: Clone the updated vm
+  command: |
+    virt-clone --auto-clone \
+    --original {{ item }}-update \
+    --name {{ item }}
+
+- name: Delete old image
+  command: |
+    virsh undefine {{ item }}-update --remove-all-storage
