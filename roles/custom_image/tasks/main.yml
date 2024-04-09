@@ -1,0 +1,33 @@
+---
+# tasks file for base_image
+- name: Ensure requirements in place
+  package:
+    name:
+      - guestfs-tools
+    state: present
+  become: yes
+
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+
+- block:
+  - name: Clone the base vm
+    command: |
+      virt-clone --auto-clone \
+      --original {{ image.value.base }} \
+      --name {{ image.value.new }}
+
+  - name: Configure additional packages
+    shell: echo -n "{{'--install ' + image.value.packages if image.value.packages != ''}}" | tr '\n' ','
+    register: install_additional_packages
+
+  - name: Customize the new vm
+    command: |
+      virt-customize -d {{ image.value.new }} \
+      {{ install_additional_packages.stdout }}
+
+  when: "image.value.base in existing_vms.list_vms and
+         image.value.new not in existing_vms.list_vms"

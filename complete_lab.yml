@@ -1,0 +1,70 @@
+- name: Configure lab
+  hosts: localhost
+  gather_facts: yes
+  become: yes
+  vars:
+    pool_dir: "/var/lib/libvirt/images"
+    fedora_ver: 39
+    repo_mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=fedora-{{ fedora_ver }}&arch=x86_64"
+    updates_mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=updates-released-f{{ fedora_ver }}&arch=x86_64"
+    url_mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=fedora-{{ fedora_ver }}&arch=x86_64"
+    location: "https://download.fedoraproject.org/pub/fedora/linux/releases/{{ fedora_ver }}/Everything/x86_64/os/"
+    vm: "f{{ fedora_ver }}-base"
+    vcpus: 4
+    ram_mb: 4096
+    disk_size_gb: 20
+    packages: |-
+    _images:
+      development:
+        packages: |-
+        base: "f39-base"
+        new: "f39-development-test"
+      pentest:
+        packages: |-
+          nmap
+          openvpn
+          wireshark
+          hashcat
+          ffuf
+          freerdp
+        base: "f39-base"
+        new: "f39-pentest"
+      personal:
+        packages: |-
+          libreoffice
+        base: "f39-base"
+        new: "f39-personal"
+      random:
+        packages: |-
+        base: "f39-base"
+        new: "f39-random"
+
+  tasks:
+    - name: KVM Provision role
+      include_role:
+        name: base_image
+      vars:
+        libvirt_pool_dir: "{{ pool_dir }}"
+        main_repo_mirrorlist: "{{ repo_mirrorlist }}"
+        main_updates_mirrorlist: "{{ updates_mirrorlist }}"
+        main_url_mirrorlist: "{{ url_mirrorlist }}"
+        vm_name: "{{ vm }}"
+        vm_vcpus: "{{ vcpus }}"
+        vm_ram_mb: "{{ ram_mb }}"
+        vm_disk_size: "{{ disk_size_gb }}"
+        additional_packages: "{{ packages }}"
+        kernel_location: "{{ location }}"
+
+    - name: Configure applications
+      include_role:
+        name: custom_configurations
+      vars:
+        image: "{{ vm }}"
+        linux_user: "user"
+
+    - name: Custom image role
+      include_role:
+        name: custom_image
+      loop: "{{ images | dict2items }}"
+      loop_control:
+        loop_var: image

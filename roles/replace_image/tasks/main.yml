@@ -1,0 +1,31 @@
+---
+# tasks file for base_image
+- name: Ensure requirements in place
+  package:
+    name:
+      - guestfs-tools
+    state: present
+  become: yes
+
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+
+- block:
+  - name: Delte old vm
+    command: |
+      virsh undefine {{ image }} --remove-all-storage
+
+  - name: Clone new vm
+    command: |
+      virt-clone --auto-clone \
+      --original {{ image }}-update \
+      --name {{ image }}
+
+  - name: Delete temporary vm
+    command: |
+      virsh undefine {{ image }}-update --remove-all-storage
+
+  when: "image in existing_vms.list_vms"

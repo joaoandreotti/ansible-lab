@@ -1,0 +1,21 @@
+# tasks file for base_image
+- name: Ensure requirements in place
+  package:
+    name:
+      - guestfs-tools
+    state: present
+  become: yes
+
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+
+- name: Firefox configuration
+  ansible.builtin.import_tasks:
+    file: firefox.yml
+
+- name: Terminal configuration
+  ansible.builtin.import_tasks:
+      file: terminal.yml

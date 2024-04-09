@@ -1,0 +1,3 @@
+---
+# defaults vars for update_image
+linux_user: user

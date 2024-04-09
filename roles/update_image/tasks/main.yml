@@ -1,0 +1,28 @@
+---
+# tasks file for base_image
+- name: Ensure requirements in place
+  package:
+    name:
+      - guestfs-tools
+    state: present
+  become: yes
+
+- block:
+  - name: Get VMs list
+    community.libvirt.virt:
+      command: list_vms
+    register: existing_vms
+    changed_when: no
+
+  - name: Clone the base vm
+    command: |
+      virt-clone --auto-clone \
+      --original {{ image }} \
+      --name {{ image }}-update
+
+  - name: Update images
+    command: |
+      virt-customize -d {{ image }}-update \
+      --update --dry-run
+
+  when: "image in existing_vms.list_vms"

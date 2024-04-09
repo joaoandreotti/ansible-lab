@@ -1,0 +1,19 @@
+- name: Update images
+  hosts: localhost
+  gather_facts: yes
+  become: yes
+  vars:
+    images:
+      - f39-base
+      - f39-development
+      - f39-pentest
+      - f39-personal
+      - f39-random
+
+  tasks:
+    - name: Update image role
+      include_role:
+        name: update_image
+      loop: "{{ images }}"
+      loop_control:
+        loop_var: image
