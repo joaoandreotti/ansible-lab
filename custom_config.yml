@@ -1,0 +1,54 @@
+- name: Configure lab
+  hosts: localhost
+  gather_facts: yes
+  become: yes
+  vars:
+    _images:
+      test:
+        packages: |-
+        base: "f40-base"
+        new: "f40-test"
+        user: "user"
+        hostname: "test"
+#      development:
+#        packages: |-
+#        base: "f40-base"
+#        new: "f40-development"
+#        user: "user"
+#        hostname: "development"
+#      pentest:
+#        packages: |-
+#          nmap
+#          openvpn
+#          wireshark
+#          hashcat
+#          ffuf
+#          freerdp
+#        base: "f40-base"
+#        new: "f40-pentest"
+#        user: "user"
+#        hostname: "pentest"
+#      personal:
+#        packages: |-
+#          libreoffice
+#        base: "f40-base"
+#        new: "f40-personal"
+#        user: "user"
+#        hostname: "personal"
+#      random:
+#        packages: |-
+#        base: "f40-base"
+#        new: "f40-random"
+#        user: "user"
+#        hostname: "random"
+
+  tasks:
+    - name: Custom image role
+      include_role:
+        name: custom_configurations
+      vars:
+        vm: "{{ image.value.new }}"
+        user: "{{ image.value.user }}"
+      loop: "{{ _images | dict2items }}"
+      loop_control:
+        loop_var: image

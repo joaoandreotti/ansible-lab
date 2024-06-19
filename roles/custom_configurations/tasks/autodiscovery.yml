@@ -1,0 +1,10 @@
+---
+- name: Autodiscovery Configuration
+  block:
+    - name: Configure auto discovery
+      command: |
+        virt-customize -d {{ vm }} \
+        --run-command 'sudo dnf remove -y nss-mdns' \
+        --run-command 'sudo dnf install -y nss-mdns' \
+
+  when: "vm in existing_vms.list_vms"

@@ -19,3 +19,11 @@
 - name: Terminal configuration
   ansible.builtin.import_tasks:
       file: terminal.yml
+
+- name: Autodiscovery configuration
+  ansible.builtin.import_tasks:
+      file: autodiscovery.yml
+
+- name: XFCE4 configuration
+  ansible.builtin.import_tasks:
+      file: xfce4.yml

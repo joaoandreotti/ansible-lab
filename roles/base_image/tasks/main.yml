@@ -34,6 +34,7 @@
       command: |
         virt-install \
         --name {{ vm_name }} \
+        --boot uefi
         --memory {{ vm_ram_mb }} --vcpus {{ vm_vcpus }} --disk size={{ vm_disk_size}}
         --location {{ kernel_location }} \
         --initrd-inject {{ ks_file.path }} \
@@ -60,7 +61,7 @@
 
     - name: Undefine vm
       command: |
-        virsh undefine {{ vm_name }}
+        virsh undefine --nvram {{ vm_name }}
 
     - name: Define new xml
       command: |

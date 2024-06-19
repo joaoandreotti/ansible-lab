@@ -7,6 +7,7 @@ firewall --disabled
 authselect select sssd
 timezone --utc US/Eastern
 bootloader --location=mbr
+selinux --disabled
 zerombr
 
 clearpart --all --drives=vda
@@ -43,6 +44,9 @@ tmux
 @Development Tools
 
 # Additional packages
+tigervnc
+tigervnc-server
+xfce4-genmon-plugin
 {{ additional_packages }}
 
 %end

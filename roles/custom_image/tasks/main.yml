@@ -17,17 +17,18 @@
   - name: Clone the base vm
     command: |
       virt-clone --auto-clone \
-      --original {{ image.value.base }} \
-      --name {{ image.value.new }}
+      --original {{ base }} \
+      --name {{ new }}
 
   - name: Configure additional packages
-    shell: echo -n "{{'--install ' + image.value.packages if image.value.packages != ''}}" | tr '\n' ','
+    shell: echo -n "{{'--install ' + packages if packages != ''}}" | tr '\n' ','
     register: install_additional_packages
 
   - name: Customize the new vm
     command: |
-      virt-customize -d {{ image.value.new }} \
+      virt-customize -d {{ new }} \
+      --hostname {{ hostname }} \
       {{ install_additional_packages.stdout }}
 
-  when: "image.value.base in existing_vms.list_vms and
-         image.value.new not in existing_vms.list_vms"
+  when: "base in existing_vms.list_vms and
+         new not in existing_vms.list_vms"

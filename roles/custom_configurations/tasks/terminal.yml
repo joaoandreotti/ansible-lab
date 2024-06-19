@@ -3,13 +3,13 @@
   block:
     - name: Copy tmux.conf
       command: |
-        virt-copy-in -d {{ image }} {{ item }} /home/{{ linux_user }}
+        virt-copy-in -d {{ vm }} {{ item }} /home/{{ user }}
       with_fileglob:
         - ../templates/.tmux.conf
 
     - name: Copy vimrc
       command: |
-        virt-copy-in -d {{ image }} {{ item }} /home/{{ linux_user }}
+        virt-copy-in -d {{ vm }} {{ item }} /home/{{ user }}
       with_fileglob:
         - ../templates/.vimrc
-  when: "image in existing_vms.list_vms"
+  when: "vm in existing_vms.list_vms"

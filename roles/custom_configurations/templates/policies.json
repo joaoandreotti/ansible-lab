@@ -51,9 +51,10 @@
     },
     "SearchBar": "unified",
     "SearchEngines": {
-      "Default": "duckduckgo",
+      "Default": "DuckDuckGo",
       "PreventInstalls": true
     },
-    "SearchSuggestEnabled": false
+    "SearchSuggestEnabled": false,
+    "DefaultDownloadDirectory": "/tmp"
   }
 }

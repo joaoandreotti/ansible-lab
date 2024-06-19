@@ -1,0 +1,21 @@
+---
+- name: XFCE4 Configuration
+  block:
+    - name: Create xfce4 config folder
+      command: |
+        virt-customize -d {{ vm }} \
+        --run-command 'mkdir -p /home/{{ user }}/.config/xfce4/xfconf/xfce-perchannel-xml/'
+
+    - name: Copy xfce4 config
+      command: |
+        virt-copy-in -d {{ vm }} {{ item }} /home/{{ user }}/.config/xfce4/xfconf/xfce-perchannel-xml/
+      with_fileglob:
+        - ../templates/xfce4/*.xml
+
+    - name: Modify xfce4 panel vm hint
+      command: |
+        virt-customize -d {{ vm }} \
+        --run-command 'sed -i 's/VM_NAME/{{ vm }}/g' /home/{{ user }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml'
+
+
+  when: "vm in existing_vms.list_vms"

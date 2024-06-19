@@ -4,7 +4,7 @@
   become: yes
   vars:
     pool_dir: "/var/lib/libvirt/images"
-    fedora_ver: 39
+    fedora_ver: 40
     repo_mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=fedora-{{ fedora_ver }}&arch=x86_64"
     updates_mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=updates-released-f{{ fedora_ver }}&arch=x86_64"
     url_mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=fedora-{{ fedora_ver }}&arch=x86_64"
@@ -15,10 +15,18 @@
     disk_size_gb: 20
     packages: |-
     _images:
+      study:
+        packages: |-
+        base: "f{{ fedora_ver }}-base"
+        new: "f{{ fedora_ver }}-study"
+        user: "user"
+        hostname: "study"
       development:
         packages: |-
-        base: "f39-base"
-        new: "f39-development-test"
+        base: "f{{ fedora_ver }}-base"
+        new: "f{{ fedora_ver }}-development"
+        user: "user"
+        hostname: "development"
       pentest:
         packages: |-
           nmap
@@ -27,17 +35,23 @@
           hashcat
           ffuf
           freerdp
-        base: "f39-base"
-        new: "f39-pentest"
+        base: "f{{ fedora_ver }}-base"
+        new: "f{{ fedora_ver }}-pentest"
+        user: "user"
+        hostname: "pentest"
       personal:
         packages: |-
           libreoffice
-        base: "f39-base"
-        new: "f39-personal"
+        base: "f{{ fedora_ver }}-base"
+        new: "f{{ fedora_ver }}-personal"
+        user: "user"
+        hostname: "personal"
       random:
         packages: |-
-        base: "f39-base"
-        new: "f39-random"
+        base: "f{{ fedora_ver }}-base"
+        new: "f{{ fedora_ver }}-random"
+        user: "user"
+        hostname: "random"
 
   tasks:
     - name: KVM Provision role
@@ -55,16 +69,24 @@
         additional_packages: "{{ packages }}"
         kernel_location: "{{ location }}"
 
-    - name: Configure applications
-      include_role:
-        name: custom_configurations
-      vars:
-        image: "{{ vm }}"
-        linux_user: "user"
-
     - name: Custom image role
       include_role:
         name: custom_image
-      loop: "{{ images | dict2items }}"
+      vars:
+        hostname: "{{ image.value.hostname }}"
+        base: "{{ image.value.base }}"
+        new: "{{ image.value.new }}"
+        packages: {{ image.value.packages }}
+      loop: "{{ _images | dict2items }}"
+      loop_control:
+        loop_var: image
+
+    - name: Custom image role
+      include_role:
+        name: custom_configurations
+      vars:
+        vm: "{{ image.value.new }}"
+        user: "{{ image.value.user }}"
+      loop: "{{ _images | dict2items }}"
       loop_control:
         loop_var: image

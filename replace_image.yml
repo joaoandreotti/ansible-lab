@@ -4,11 +4,11 @@
   become: yes
   vars:
     images:
-      - f39-base
-      - f39-development
-      - f39-pentest
-      - f39-personal
-      - f39-random
+      - f40-base
+      - f40-development
+      - f40-pentest
+      - f40-personal
+      - f40-random
 
   tasks:
     - name: Update image role

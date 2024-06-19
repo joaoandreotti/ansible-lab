@@ -3,19 +3,20 @@
   block:
     - name: Copy autoconfig.js
       command: |
-        virt-copy-in -d {{ image }} {{ item }} /usr/lib64/firefox/defaults/pref/
+        virt-copy-in -d {{ vm }} {{ item }} /usr/lib64/firefox/defaults/pref/
       with_fileglob:
         - ../templates/autoconfig.js
 
     - name: Copy firefox.cfg
       command: |
-        virt-copy-in -d {{ image }} {{ item }} /usr/lib64/firefox/
+        virt-copy-in -d {{ vm }} {{ item }} /usr/lib64/firefox/
       with_fileglob:
         - ../templates/firefox.cfg
 
     - name: Copy policies.json
       command: |
-        virt-copy-in -d {{ image }} {{ item }} /usr/lib64/firefox/distribution/
+        virt-copy-in -d {{ vm }} {{ item }} /usr/lib64/firefox/distribution/
       with_fileglob:
         - ../templates/policies.json
-  when: "image in existing_vms.list_vms"
+
+  when: "vm in existing_vms.list_vms"
